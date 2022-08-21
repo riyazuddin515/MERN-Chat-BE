@@ -26,7 +26,7 @@ router.post('/signup', async (req, res) => {
             return
         }
         const hashedPassword = await bcrypt.hash(req.body.password, 10);
-        const jwtToken = jwt.sign(req.body.email, 'MERNChat')
+        const jwtToken = jwt.sign(req.body.email, process.env.JWT_TOKEN)
         const user = await userSchema.create({
             name: name,
             email: email,
@@ -34,6 +34,7 @@ router.post('/signup', async (req, res) => {
             token: jwtToken
         })
         const { password: pass, ...response } = user._doc
+        response.success = true
         res.json(response)
         console.log('User Created.')
     } catch (error) {
@@ -65,6 +66,7 @@ router.post('/login', async (req, res) => {
         const matched = await bcrypt.compare(password, user[0].password)
         if (matched) {
             const { password: pass, ...response } = user[0]._doc
+            response.success = true
             res.json(response)
             return
         }
