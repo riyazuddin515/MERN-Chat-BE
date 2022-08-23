@@ -3,6 +3,7 @@ const dotenv = require('dotenv')
 const connectDB = require('./config/db')
 const authRoute = require('./routes/authRoute')
 const usersRoute = require('./routes/usersRoute')
+const chatRoute = require('./routes/chatRoute')
 
 const app = express()
 dotenv.config()
@@ -11,6 +12,7 @@ connectDB()
 
 app.use('/auth', authRoute)
 app.use('/users', usersRoute)
+app.use('/chat', chatRoute)
 
-const PORT = process.env.PORT || 5432
-app.listen(PORT, console.log('Hello from server😀'))
+
+app.listen(process.env.PORT, console.log('Hello from server😀'))
