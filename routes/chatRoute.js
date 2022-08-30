@@ -1,6 +1,8 @@
 const express = require('express')
-const chatModel = require('../models/chatModel')
 const authenticatorMiddleware = require('../config/authenticatorMiddle')
+const userModel = require('../models/userModel')
+const chatModel = require('../models/chatModel')
+const messageModel = require('../models/MessageModel')
 
 const router = express.Router()
 
@@ -54,10 +56,7 @@ router.get('/', authenticatorMiddleware, async (req, res) => {
             .populate('groupAdmin', { 'password': 0, 'token': 0 })
             .populate('lastMessage')
             .sort({ updatedAt: -1 })
-        res.status(200).json({
-            success: true,
-            result: chatList
-        })
+        res.status(200).json(chatList)
     } catch (error) {
         console.log(error.message)
         res.status(400).json({
@@ -67,5 +66,45 @@ router.get('/', authenticatorMiddleware, async (req, res) => {
     }
 })
 
+//Send Message
+router.post('/messages/', authenticatorMiddleware, async (req, res) => {
+    try {
+        const { content, chat } = req.body
+        if (!content || !chat) {
+            res.status(400).send('Invalid request.')
+            return
+        }
+
+        let message = await messageModel.create({
+            content: content,
+            sender: req.user._id,
+            chat: chat,
+        })
+        message = await message.populate('sender', { 'password': 0, 'token': 0 })
+        message = await message.populate('chat')
+        message = await message.populate('chat.users', { 'password': 0, 'token': 0 })
+        res.status(200).json(message)
+    } catch (error) {
+        console.log(error.message)
+        res.status(500).send(error.message)
+    }
+})
+
+//Get Messages
+router.get('/messages/:chatId', authenticatorMiddleware, async (req, res) => {
+    try {
+        if (!req.params.chatId) {
+            res.status(400).send('Invalid request abcd.')
+            return
+        }
+        const messages = await messageModel.find({
+            chat: req.params.chatId
+        }).populate('sender', { 'password': 0, 'token': 0 })
+        res.status(200).json(messages)
+    } catch (error) {
+        console.log(error.message)
+        res.status(400).send(error.message)
+    }
+})
 
 module.exports = router

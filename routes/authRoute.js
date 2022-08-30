@@ -59,9 +59,9 @@ router.post('/login', async (req, res) => {
             res.json(response)
             return
         }
-        res.send(400, "Wrong password.")
+        res.status(400).send("Wrong password.")
     } catch (error) {
-        res.send(400, error.message)
+        res.status(400).send(error.message)
     }
 })
 
