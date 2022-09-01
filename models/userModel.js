@@ -4,7 +4,8 @@ const userModel = mongoose.Schema({
     email: {
         type: String,
         required: true,
-        unique: true
+        unique: true,
+        trim: true
     },
     password: {
         type: String,
@@ -16,11 +17,12 @@ const userModel = mongoose.Schema({
     },
     name: {
         type: String,
-        required: true
+        required: true,
+        trim: true
     },
     profilePic: {
         type: String,
-        default: "https://www.nicepng.com/png/detail/522-5226533_get-beyond-the-usual-suspects-profile-pic-icon.png"
+        default: ""
     },
     createdAt: {
         type: Date,
