@@ -49,13 +49,15 @@ router.post('/', authenticatorMiddleware, async (req, res) => {
 //access Chat
 router.get('/', authenticatorMiddleware, async (req, res) => {
     try {
-        const chatList = await chatModel.find({
+        let chatList = await chatModel.find({
             users: { $elemMatch: { $eq: req.user._id } }
         })
             .populate('users', { 'password': 0, 'token': 0 })
             .populate('groupAdmin', { 'password': 0, 'token': 0 })
             .populate('lastMessage')
             .sort({ updatedAt: -1 })
+
+        chatList = await chatModel.populate(chatList, { path: 'lastMessage.sender', select: 'name' })
         res.status(200).json(chatList)
     } catch (error) {
         console.log(error.message)
@@ -70,6 +72,7 @@ router.get('/', authenticatorMiddleware, async (req, res) => {
 router.post('/messages/', authenticatorMiddleware, async (req, res) => {
     try {
         const { content, chat } = req.body
+        console.log(chat)
         if (!content || !chat) {
             res.status(400).send('Invalid request.')
             return
@@ -83,6 +86,7 @@ router.post('/messages/', authenticatorMiddleware, async (req, res) => {
         message = await message.populate('sender', { 'password': 0, 'token': 0 })
         message = await message.populate('chat')
         message = await message.populate('chat.users', { 'password': 0, 'token': 0 })
+        const chatUpdate = await chatModel.updateOne({ _id: chat }, { 'lastMessage': message._id })
         res.status(200).json(message)
     } catch (error) {
         console.log(error.message)
@@ -92,11 +96,11 @@ router.post('/messages/', authenticatorMiddleware, async (req, res) => {
 
 //Get Messages
 router.get('/messages/:chatId', authenticatorMiddleware, async (req, res) => {
+    if (!req.params.chatId) {
+        res.status(400).send('Invalid request abcd.')
+        return
+    }
     try {
-        if (!req.params.chatId) {
-            res.status(400).send('Invalid request abcd.')
-            return
-        }
         const messages = await messageModel.find({
             chat: req.params.chatId
         }).populate('sender', { 'password': 0, 'token': 0 })
@@ -104,6 +108,31 @@ router.get('/messages/:chatId', authenticatorMiddleware, async (req, res) => {
     } catch (error) {
         console.log(error.message)
         res.status(400).send(error.message)
+    }
+})
+
+router.post('/newGroup', authenticatorMiddleware, async (req, res) => {
+    if (!req.body.chatName || !req.body.users) {
+        res.status(400).send('Invalid request.')
+        return
+    }
+    const users = JSON.parse(req.body.users)
+    if (users.length < 1) {
+        return res.status(400).send('Atleat 1 member required.');
+    }
+    users.push(req.user)
+    try {
+        let groupChat = await chatModel.create({
+            chatName: req.body.chatName,
+            isGroupChat: true,
+            users: users,
+            groupAdmin: req.user._id
+        })
+        groupChat = await groupChat.populate('users', { 'password': 0, 'token': 0 })
+        res.status(200).send(groupChat)
+    } catch (error) {
+        console.log(error.message)
+        res.status(500).send(error.message)
     }
 })
 
