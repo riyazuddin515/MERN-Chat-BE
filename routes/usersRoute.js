@@ -16,7 +16,7 @@ router.get('/', authenticatorMiddle, async (req, res) => {
                 { name: { $regex: searchKeyword, $options: 'i' } },
                 { email: { $regex: searchKeyword, $options: 'i' } }
             ]
-        }).find({ _id: { $ne: req.user._id } }).select('-password')
+        }).find({ _id: { $ne: req.user._id } }).select({ 'password': 0, 'token': 0 })
         res.status(200).send(allUsers)
     } catch (error) {
         console.log(error.message)

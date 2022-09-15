@@ -136,4 +136,24 @@ router.post('/newGroup', authenticatorMiddleware, async (req, res) => {
     }
 })
 
+//  Add Members
+router.post('/addMembers', authenticatorMiddleware, async (req, res) => {
+    try {
+        if (!req.body.chatId || !req.body.users) {
+            res.status(400).send('Invalid request.')
+            return
+        }
+        const users = JSON.parse(req.body.users);
+        const r = await chatModel.updateOne({ _id: req.body.chatId }, { $addToSet: { 'users': users } })
+        const c = await chatModel.findOne({ _id: req.body.chatId })
+            .populate('users', { 'password': 0, 'token': 0 })
+            .populate('groupAdmin', { 'password': 0, 'token': 0 })
+            .populate('lastMessage')
+        return res.status(200).send(c)
+    } catch (error) {
+        console.log(error.message)
+        return res.status(500).send(error.message)
+    }
+})
+
 module.exports = router

@@ -2,8 +2,6 @@ const express = require('express')
 const userModel = require('../models/userModel')
 const bcrypt = require('bcryptjs')
 var jwt = require('jsonwebtoken');
-const { response } = require('express');
-const authenticatorMiddle = require('../config/authenticatorMiddle');
 
 const router = express.Router()
 
@@ -49,8 +47,7 @@ router.post('/login', async (req, res) => {
         }
         const user = await userModel.where('email').eq(req.body.email)
         if (user.length === 0) {
-            res.send(400, "No user found with this email.")
-            return
+            return res.status(400).send("No user found with this email.")
         }
         const matched = await bcrypt.compare(password, user[0].password)
         if (matched) {
