@@ -45,13 +45,13 @@ router.post('/login', async (req, res) => {
             })
             return
         }
-        const user = await userModel.where('email').eq(req.body.email)
+        const user = await userModel.findOne({ email: { $regex: req.body.email, $options: 'i' } })
         if (user.length === 0) {
             return res.status(400).send("No user found with this email.")
         }
-        const matched = await bcrypt.compare(password, user[0].password)
+        const matched = await bcrypt.compare(password, user.password)
         if (matched) {
-            const { password: pass, ...response } = user[0]._doc
+            const { password: pass, ...response } = user._doc
             response.success = true
             res.json(response)
             return
