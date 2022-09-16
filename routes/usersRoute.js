@@ -30,13 +30,9 @@ router.put('/update', authenticatorMiddle, async (req, res) => {
             res.status(400).send('Invalid request')
             return
         }
-        const up = await userSchema.updateOne({ _id: req.user._id }, { $set: req.body })
-        if (up.acknowledged) {
-            const user = await userSchema.findOne({ _id: req.user._id }).select('-password')
-            res.status(200).send(user)
-            return
-        }
-        res.status(500).send("Something went wrong.")
+        await userSchema.updateOne({ _id: req.user._id }, { $set: req.body })
+        const user = await userSchema.findOne({ _id: req.user._id }).select('-password')
+        return res.status(200).send(user)
     } catch (error) {
         console.log(error.log)
         res.status(500).send(error.message)

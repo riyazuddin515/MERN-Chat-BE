@@ -24,9 +24,7 @@ router.post('/', authenticatorMiddleware, async (req, res) => {
             .populate('lastMessage')
 
         if (chat) {
-            console.log('found');
-            res.status(200).json(chat)
-            return
+            return res.status(200).json(chat)
         }
 
         let createChat = await chatModel.create({
@@ -72,7 +70,6 @@ router.get('/', authenticatorMiddleware, async (req, res) => {
 router.post('/messages/', authenticatorMiddleware, async (req, res) => {
     try {
         const { content, chat } = req.body
-        console.log(chat)
         if (!content || !chat) {
             res.status(400).send('Invalid request.')
             return

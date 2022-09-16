@@ -44,6 +44,20 @@ io.on('connection', (socket) => {
                 io.to(user._id).emit('receive-message', message)
             })
     })
+    socket.on('typing', (chat, userId) => {
+        chat.users.forEach(user => {
+            if (user._id !== userId) {
+                io.to(user._id).emit('typing', chat._id)
+            }
+        })
+    })
+    socket.on('stop-typing', (chat, userId) => {
+        chat.users.forEach(user => {
+            if (user._id !== userId) {
+                io.to(user._id).emit('stop-typing', chat._id)
+            }
+        })
+    })
 })
 
 instrument(io, { auth: false })
