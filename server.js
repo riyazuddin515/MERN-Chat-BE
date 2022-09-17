@@ -26,7 +26,7 @@ const server = app.listen(process.env.PORT, console.log('Hello from server😀')
 const io = require('socket.io')(server, {
     pingTimeOut: 60000,
     cors: {
-        origin: ['http://localhost:3000', 'https://admin.socket.io/']
+        origin: ['http://localhost:3000']
     }
 })
 
