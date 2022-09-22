@@ -1,0 +1,6 @@
+export const Baby_Blue = '#8AAAE5'
+export const White = '#FFFFFF'
+export const Cherry_Red = '#990011FF'
+export const Off_White = '#FCF6F5FF'
+export const Burnt_Orange = '#EE4E34'
+export const Forest_green = '#3A6B35'

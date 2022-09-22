@@ -1,0 +1,6 @@
+.app {
+  height: 100vh;
+  background: url('./asset/bg3.webp');
+  background-repeat: no-repeat;
+  background-size: cover;
+}
