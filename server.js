@@ -1,11 +1,11 @@
 const express = require('express')
 const dotenv = require('dotenv')
-const { colors } = require('colors')
 const connectDB = require('./config/db')
 const authRoute = require('./routes/authRoute')
 const usersRoute = require('./routes/usersRoute')
 const chatRoute = require('./routes/chatRoute')
 const { instrument } = require('@socket.io/admin-ui')
+const path = require('path')
 
 const app = express()
 dotenv.config()
@@ -16,10 +16,17 @@ app.use('/auth', authRoute)
 app.use('/users', usersRoute)
 app.use('/chat', chatRoute)
 
-app.get('/', (req, res) => {
-    console.log('Hello from server')
-})
 
+if (process.env.NODE_ENV === 'production') {
+    app.use(express.static('public'))
+    app.get('*', (req, res) => {
+        res.sendFile(path.resolve(__dirname, 'public', 'index.html'))
+    })
+} else {
+    app.get('/', (req, res) => {
+        res.status(200).send('Server is up😀')
+    })
+}
 
 const server = app.listen(process.env.PORT, console.log('Hello from server😀'))
 

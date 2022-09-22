@@ -36,7 +36,6 @@ router.post('/signup', async (req, res) => {
 
 router.post('/login', async (req, res) => {
     try {
-        console.log('login invoked');
         const { email, password } = req.body
         if (!email || !password) {
             res.json({
@@ -46,7 +45,7 @@ router.post('/login', async (req, res) => {
             return
         }
         const user = await userModel.findOne({ email: { $regex: req.body.email, $options: 'i' } })
-        if (user.length === 0) {
+        if (!user) {
             return res.status(400).send("No user found with this email.")
         }
         const matched = await bcrypt.compare(password, user.password)
@@ -58,6 +57,7 @@ router.post('/login', async (req, res) => {
         }
         res.status(400).send("Wrong password.")
     } catch (error) {
+        console.log(error)
         res.status(400).send(error.message)
     }
 })
